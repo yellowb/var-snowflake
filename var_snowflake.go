@@ -9,13 +9,13 @@ import (
 
 /*
 生成的64bit整数, 组成部分由高位到低位如下:
-(1) 16bit - 填充0
+(1) 17bit - 填充0
 (2) 29bit - 时间戳, 单位秒, 表示从基线时间开始的秒数, 能支持17年
-(3) 7bit  - node编号, 最大支持128个实例
+(3) 6bit  - node编号, 最大支持64个实例
 (4) 12bit - seq序号, 最大支持同一秒内生成4096个ID
 
-按照这个配置, 每秒最大ID生成数 = 128 * 4096 = 524288个.
-生成的base64字符串最大长度为8.
+按照这个配置, 每秒最大ID生成数 = 64 * 4096 = 256K个.
+由于保证了至少高17bit都为0, 所以生成的base64字符串最大长度为8. Log64(2 ^ 48 - 1) = Log64(281474976710655) < 8
 */
 
 const (
@@ -31,7 +31,7 @@ const (
 	div64Shift = 6
 
 	// node编号部分占7bit
-	NodeBits uint8 = 7
+	NodeBits uint8 = 6
 
 	// seq序号部分占12bit
 	StepBits uint8 = 12
@@ -79,7 +79,7 @@ func NewNode(epoch time.Time, node int64) (*Node, error) {
 		epoch: epoch,
 		node:  node,
 	}
-	n.nodeMax = -1 ^ (-1 << NodeBits) // 7 -> 127
+	n.nodeMax = -1 ^ (-1 << NodeBits) // 6 -> 63
 	n.nodeMask = n.nodeMax << StepBits
 	n.stepMask = -1 ^ (-1 << StepBits)
 	n.timeShift = NodeBits + StepBits
