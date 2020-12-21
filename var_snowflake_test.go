@@ -2,6 +2,7 @@ package var_snowflake
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -18,7 +19,7 @@ func TestNode_Generate(t *testing.T) {
 			fmt.Printf("%s = %s = %d\n", id.Base64(), id.Base2(), id.Int64())
 		}
 		fmt.Println("-----------------")
-		time.Sleep(time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -32,3 +33,12 @@ func BenchmarkNode_Generate(b *testing.B) {
 	}
 }
 
+func TestBits1(t *testing.T) {
+
+	mask := int64(-1 ^ (-1 << 29))
+
+	now := time.Since(Epoch20200101).Nanoseconds() / 1e9
+	fmt.Println(strconv.FormatInt(now, 2))
+	fmt.Println(strconv.FormatInt(now & mask, 2))
+	fmt.Println(strconv.FormatInt(^now & mask, 2))
+}
